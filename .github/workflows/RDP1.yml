@@ -13,14 +13,16 @@ jobs:
         Expand-Archive ngrok.zip -DestinationPath .
         .\ngrok.exe authtoken 30VJ0Myc22G6MwzSLG8mrmcfHJ2_6QtyHGsxuvCez58BnNsRJ
 
-    - name: Enable RDP Access
+    - name: Enable RDP and create user
       run: |
         net user kamel123 MyStrong123 /add
         net localgroup administrators kamel123 /add
         Set-ItemProperty -Path 'HKLM:\System\CurrentControlSet\Control\Terminal Server' -Name 'fDenyTSConnections' -Value 0
         Enable-NetFirewallRule -DisplayGroup "Remote Desktop"
+        Restart-Service TermService
 
     - name: Start ngrok tunnel
       run: |
-        Start-Process -NoNewWindow -FilePath .\ngrok.exe -ArgumentList "tcp 3389"
-        Start-Sleep -Seconds 10
+        Start-Process -NoNewWindow -FilePath .\ngrok.exe -ArgumentList "tcp 3389 --log=ngrok.log"
+        Start-Sleep -Seconds 15
+        Get-Content ngrok.log | Select-String "tcp://"
