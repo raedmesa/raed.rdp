@@ -19,7 +19,12 @@ jobs:
         net localgroup administrators kamel123 /add
         Set-ItemProperty -Path 'HKLM:\System\CurrentControlSet\Control\Terminal Server' -Name 'fDenyTSConnections' -Value 0
         Enable-NetFirewallRule -DisplayGroup "Remote Desktop"
-        # Restart-Service TermService -Force   # تم التعليق على إعادة التشغيل لتجنب الخطأ
+
+    - name: Check RDP service status
+      run: Get-Service TermService | Select-Object Status
+
+    - name: Test RDP port locally
+      run: Test-NetConnection -ComputerName localhost -Port 3389
 
     - name: Start ngrok tunnel
       run: |
